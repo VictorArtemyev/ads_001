@@ -1,4 +1,4 @@
-package ads_001;
+package ads_001.movrat;
 
 import java.util.Arrays;
 import java.util.Random;

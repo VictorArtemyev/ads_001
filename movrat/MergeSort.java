@@ -1,4 +1,4 @@
-package ads_001;
+package ads_001.movrat;
 
 /**
  * Created by Victor Artemjev on 15.05.2015.
