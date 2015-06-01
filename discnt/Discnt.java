@@ -9,6 +9,7 @@ import java.util.Locale;
  * Created by Victor Artemjev on 01.06.2015.
  */
 public class Discnt {
+
     private static final String FILE_NAME_IN = "discnt.in";
     private static final String FILE_NAME_OUT = "discnt.out";
 
