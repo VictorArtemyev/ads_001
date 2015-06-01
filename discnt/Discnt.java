@@ -32,15 +32,17 @@ public class Discnt {
         if (prices.length % PURCHASE_DISCOUNT_NUMBER == 0) {
             barrier++;
         }
-        System.out.println("Barier: " + barrier);
         int priceCount = 1;
-        System.out.println("Discount: " + discountCount);
 
         for (int i = 0; i < barrier; i++) {
-            if (discountCount != 0 && priceCount % PURCHASE_DISCOUNT_NUMBER == 0) {
+            if (discountCount != 0 &&
+                    priceCount % PURCHASE_DISCOUNT_NUMBER == 0) {
+
                 minSum += getPriceWithDiscount(prices[lastMaxPriceIndex--]);
                 discountCount--;
-                if (i == barrier - 1 && barrier % PURCHASE_DISCOUNT_NUMBER == 0) {
+
+                if (i == barrier - 1 &&
+                        barrier % PURCHASE_DISCOUNT_NUMBER == 0) {
                     break;
                 }
             }
