@@ -17,6 +17,7 @@ public class Lngpok {
         QuickSort.sort(array);
         int numberOfZeros = getNumberOfZeros(array);
         int longestSequenceLength = getLongestSequenceLength(array, numberOfZeros);
+        System.out.println(longestSequenceLength);
         writeToFile(FILE_NAME_OUT, longestSequenceLength);
     }
 
