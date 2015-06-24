@@ -13,7 +13,6 @@ public class Wchain {
     private static int wordCount;
     private static Word[] words;
 
-
     public static void readFromFile() {
         String line = null;
         try (FileReader fileReader = new FileReader(FILE_NAME_IN);
