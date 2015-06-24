@@ -29,7 +29,7 @@ public class Gamsrv {
             nodeCount = Integer.parseInt(data[0]);
             connectionCount = Integer.parseInt(data[0]);
 
-            //read second line (
+            //read second line (numbers of nodes which are clients)
             Node[] nodes = new Node[nodeCount];
             data = bufferedReader.readLine().split(" ");
             clientCount = data.length;
