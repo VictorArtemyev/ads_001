@@ -14,7 +14,7 @@ public class Bugtrk {
     private static final String FILE_NAME_OUT = "bugtrk.out";
 
     private static long paperCount;
-    private static long paperWeight;
+    private static long paperWidth;
     private static long paperHeight;
 
     private static void readFromFile() {
@@ -23,7 +23,7 @@ public class Bugtrk {
 
             String[] data = bufferedReader.readLine().split(" ");
             paperCount = Integer.parseInt(data[0]);
-            paperWeight = Integer.parseInt(data[1]);
+            paperWidth = Integer.parseInt(data[1]);
             paperHeight = Integer.parseInt(data[2]);
 
         } catch (Exception e) {
@@ -42,7 +42,7 @@ public class Bugtrk {
     private static long getMinSquareSideLength() {
         long minLength = paperHeight;
 
-        long area = paperWeight * paperHeight;
+        long area = paperWidth * paperHeight;
         long totalArea = area * paperCount;
 
         long squareSide = (long) Math.sqrt(totalArea);
