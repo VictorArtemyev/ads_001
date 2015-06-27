@@ -188,17 +188,17 @@ public class Gamsrv {
     //TODO: refactor
     public static void main(String[] args) {
         readFromFile("E:\\Java\\Algorithms\\src\\ads_001\\gamsrv\\gamsrv.in");
-        int[] routersDistances = new int[network.nodes.length - 3];
+        int[] routersLatencies = new int[network.nodes.length - 3];
         int countLatencies = 0;
         for (Node node : network.nodes) {
             if(!node.isClient) {
                 int[] latencies = dijkstra(network, node);
                 System.out.println(Arrays.toString(latencies));
-                routersDistances[countLatencies++] = getMaxLatencyByRouter(latencies);
+                routersLatencies[countLatencies++] = getMaxLatencyByRouter(latencies);
             }
         }
-        Arrays.sort(routersDistances);
-        int maxLatency = routersDistances[0];
+        Arrays.sort(routersLatencies);
+        int maxLatency = routersLatencies[0];
         System.out.println(maxLatency);
         writeToFile("E:\\Java\\Algorithms\\src\\ads_001\\gamsrv\\gamsrv.out", maxLatency);
     }

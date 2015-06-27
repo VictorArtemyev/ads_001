@@ -18,7 +18,6 @@ public class Wchain {
         try (FileReader fileReader = new FileReader(FILE_NAME_IN);
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
 
-            // read first line (number of words in words)
             line = bufferedReader.readLine();
             wordCount = Integer.parseInt(line);
 
@@ -102,8 +101,8 @@ public class Wchain {
         for (Word w : words) {
             chainLength[w.id] = DFS(w);
         }
-        int maxChainLenght = getMaxChainLength(chainLength);
-        writeToFile(maxChainLenght);
+        int maxChainLength = getMaxChainLength(chainLength);
+        writeToFile(maxChainLength);
     }
 
     private static class Word {
