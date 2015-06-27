@@ -19,9 +19,9 @@ public class Gamsrv {
 
     private static Network network;
 
-    public static void readFromFile(String fileName) {
+    public static void readFromFile() {
         String[] data = null;
-        try (FileReader fileReader = new FileReader(fileName);
+        try (FileReader fileReader = new FileReader(FILE_NAME_IN);
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
 
             // read first line (number of nodes and connections)
@@ -43,8 +43,6 @@ public class Gamsrv {
                     nodes[i] = new Node(i, false);
                 }
             }
-
-            System.out.println(Arrays.toString(nodes));
 
             // read the rest of lines (start Node, end Node, latency)
             List<Connection> connections = new ArrayList<>();
@@ -71,8 +69,8 @@ public class Gamsrv {
         }
     }
 
-    private static void writeToFile(String fileName, int value) {
-        try (FileWriter fileWriter = new FileWriter(fileName);
+    private static void writeToFile(int value) {
+        try (FileWriter fileWriter = new FileWriter(FILE_NAME_OUT);
              BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
             bufferedWriter.write(String.valueOf(value));
         } catch (IOException ex) {
@@ -81,50 +79,59 @@ public class Gamsrv {
     }
 
     private static int[] dijkstra(Network network, Node startNode) {
-
-        int[] distances = new int[network.nodes.length];
-        int maxDistance = Integer.MAX_VALUE;
-        for (int i = 0; i < distances.length; i++) {
-            distances[i] = maxDistance;
+        int[] latencies = new int[network.nodes.length];
+        int maxLatency = Integer.MAX_VALUE;
+        for (int i = 0; i < latencies.length; i++) {
+            latencies[i] = maxLatency;
         }
-        distances[startNode.id] = 0;
-
+        latencies[startNode.id] = 0;
         ArrayList<Node> visitList = new ArrayList<>(Arrays.asList(network.nodes));
-        System.out.println(visitList);
 
         while (!visitList.isEmpty()) {
-            int shortestDistanceIndex = 0;
-            Node shortestDistanceNode = visitList.get(shortestDistanceIndex);
+            int shortestLatencyIndex = 0;
+            Node shortestLatencyNode = visitList.get(shortestLatencyIndex);
 
             for (int i = 0; i < visitList.size(); i++) {
-                if (distances[visitList.get(i).id] < distances[shortestDistanceIndex]) {
-                    shortestDistanceNode = visitList.get(i);
-                    shortestDistanceIndex = i;
+                if (latencies[visitList.get(i).id] < latencies[shortestLatencyIndex]) {
+                    shortestLatencyNode = visitList.get(i);
+                    shortestLatencyIndex = i;
                 }
             }
 
-            visitList.remove(shortestDistanceIndex);
+            visitList.remove(shortestLatencyIndex);
 
-            for(Connection connection : shortestDistanceNode.outboundConnections) {
-                int alternativeLatency = distances[shortestDistanceNode.id] + connection.latency;
-                if (alternativeLatency < distances[connection.endNode.id]) {
-                    distances[connection.endNode.id] = alternativeLatency;
+            for(Connection connection : shortestLatencyNode.outboundConnections) {
+                int alternativeLatency = latencies[shortestLatencyNode.id] + connection.latency;
+                if (alternativeLatency < latencies[connection.endNode.id]) {
+                    latencies[connection.endNode.id] = alternativeLatency;
                 }
             }
         }
-        return distances;
+        return latencies;
     }
 
-    // TODO: refactor
-    private static int getMaxLatencyByRouter(int[] distances) {
-        for (int i = 0; i < distances.length; i++) {
+    private static int getMaxLatencyToClient(int[] latencies) {
+        for (int i = 0; i < latencies.length; i++) {
             Node node = network.nodes[i];
             if (!node.isClient) {
-                distances[i] = 0;
+                latencies[i] = 0;
             }
         }
-        Arrays.sort(distances);
-        return distances[distances.length - 1];
+        Arrays.sort(latencies);
+        return latencies[latencies.length - 1];
+    }
+
+    private static int getMostMinimumLatency() {
+        int[] latencyToClients = new int[network.nodes.length - clientCount];
+        int latencyCount = 0;
+        for (Node node : network.nodes) {
+            if(!node.isClient) {
+                int[] latencies = dijkstra(network, node);
+                latencyToClients[latencyCount++] = getMaxLatencyToClient(latencies);
+            }
+        }
+        Arrays.sort(latencyToClients);
+        return latencyToClients[0];
     }
 
     private static class Node {
@@ -135,14 +142,6 @@ public class Gamsrv {
         public Node(int id, boolean isClient) {
             this.id = id;
             this.isClient = isClient;
-        }
-
-        @Override
-        public String toString() {
-            return "Node{" +
-                    "id=" + id +
-                    ", isClient=" + isClient +
-                    '}';
         }
     }
 
@@ -156,15 +155,6 @@ public class Gamsrv {
             this.endNode = endNode;
             this.latency = latency;
         }
-
-        @Override
-        public String toString() {
-            return "Connection{" +
-                    "startNode=" + startNode +
-                    ", endNode=" + endNode +
-                    ", latency=" + latency +
-                    '}';
-        }
     }
 
     private static class Network {
@@ -175,31 +165,11 @@ public class Gamsrv {
             this.nodes = nodes;
             this.connections = connections;
         }
-
-        @Override
-        public String toString() {
-            return "\n Network{" +
-                    "nodes=" + Arrays.toString(nodes) +
-                    ", connections=" + connections +
-                    '}';
-        }
     }
 
-    //TODO: refactor
     public static void main(String[] args) {
-        readFromFile("E:\\Java\\Algorithms\\src\\ads_001\\gamsrv\\gamsrv.in");
-        int[] routersLatencies = new int[network.nodes.length - 3];
-        int countLatencies = 0;
-        for (Node node : network.nodes) {
-            if(!node.isClient) {
-                int[] latencies = dijkstra(network, node);
-                System.out.println(Arrays.toString(latencies));
-                routersLatencies[countLatencies++] = getMaxLatencyByRouter(latencies);
-            }
-        }
-        Arrays.sort(routersLatencies);
-        int maxLatency = routersLatencies[0];
-        System.out.println(maxLatency);
-        writeToFile("E:\\Java\\Algorithms\\src\\ads_001\\gamsrv\\gamsrv.out", maxLatency);
+        readFromFile();
+        int mostMinimumLatency = getMostMinimumLatency();
+        writeToFile(mostMinimumLatency);
     }
 }

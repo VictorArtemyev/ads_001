@@ -1,9 +1,6 @@
 package ads_001.govern;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -11,23 +8,20 @@ import java.util.*;
  */
 public class Govern {
 
-    private static final String FILE_NAME_IN = "E:\\Java\\Algorithms\\src\\ads_001\\govern\\govern.in";
-    private static final String FILE_NAME_OUT = "E:\\Java\\Algorithms\\src\\ads_001\\govern\\govern.out";
+    private static final String FILE_NAME_IN = "govern.in";
+    private static final String FILE_NAME_OUT = "govern.out";
 
-    private static int referenceCount;
-    private static Government government;
-
-    private static void readFromFile() {
+    private static Government readFromFile() {
         String line = null;
+        Government government = null;
         try (FileReader fileReader = new FileReader(FILE_NAME_IN);
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+
             Map<String, Reference> referenceMap = new HashMap<>();
             List<Order> orders = new ArrayList<>();
 
-
             while ((line = bufferedReader.readLine()) != null) {
                 String[] data = line.split(" ");
-
                 if (data.length > 1) {
                     if (!referenceMap.containsKey(data[0])) {
                         referenceMap.put(data[0], new Reference(data[0]));
@@ -45,16 +39,14 @@ public class Govern {
             }
 
             government = new Government(referenceMap, orders);
-            referenceCount = referenceMap.size();
-            System.out.println(referenceCount);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return government;
     }
 
     private static void writeToFile(List<String> result) {
-
         try (FileWriter writer = new FileWriter(FILE_NAME_OUT)) {
             for (String referenceLabel : result) {
                 writer.write(referenceLabel);
@@ -62,10 +54,10 @@ public class Govern {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        }
+    }
 
-    private static void getTopologicalOrder() {
-
+    private static List<String> getTopologicalOrder(Government government) {
+        return DFS(government, getReferencesWithoutInboundOrders(government));
     }
 
     private static List<String> DFS(Government government, List<Reference> references) {
@@ -81,20 +73,18 @@ public class Govern {
             stack.push(reference);
         }
 
-
-        while(!stack.isEmpty()){
+        while (!stack.isEmpty()) {
             Reference currentReference = stack.get(stack.size() - 1);
             visitedMap.put(currentReference, true);
             List<Reference> neighbors = new ArrayList<>();
             for (Order order : currentReference.outboundOrders) {
-                if(!visitedMap.get(order.endReference)) {
+                if (!visitedMap.get(order.endReference)) {
                     neighbors.add(order.endReference);
                     stack.push(order.endReference);
                 }
             }
 
             if (neighbors.size() == 0) {
-//                result.add(currentReference.label + "\n");
                 result.add(currentReference.label + "\n");
                 stack.pop();
             }
@@ -103,25 +93,24 @@ public class Govern {
         return result;
     }
 
-    private static List<Reference> getReferencesWithoutInboundEdges(Government government) {
+    private static List<Reference> getReferencesWithoutInboundOrders(Government government) {
         List<Reference> result = new ArrayList<>();
         Map<Reference, Boolean> haveInboundsMap = new HashMap<>();
         for (Reference reference : government.references.values()) {
             haveInboundsMap.put(reference, false);
         }
 
-        for(Order order : government.orders) {
-            if (order.endReference != null){
+        for (Order order : government.orders) {
+            if (order.endReference != null) {
                 haveInboundsMap.put(order.endReference, true);
             }
         }
 
         for (Reference reference : haveInboundsMap.keySet()) {
-            if (! haveInboundsMap.get(reference)) {
+            if (!haveInboundsMap.get(reference)) {
                 result.add(reference);
             }
         }
-        System.out.println(result);
         return result;
     }
 
@@ -155,9 +144,8 @@ public class Govern {
     }
 
     public static void main(String[] args) {
-        readFromFile();
-        List<String> result = DFS(government, getReferencesWithoutInboundEdges(government));
+        Government government = readFromFile();
+        List<String> result = getTopologicalOrder(government);
         writeToFile(result);
     }
-
 }

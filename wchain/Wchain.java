@@ -7,8 +7,8 @@ import java.util.*;
  * Created by Victor Artemjev on 23.06.2015.
  */
 public class Wchain {
-    private static final String FILE_NAME_IN = "E:\\Java\\Algorithms\\src\\ads_001\\wchain\\wchain.in";
-    private static final String FILE_NAME_OUT = "E:\\Java\\Algorithms\\src\\ads_001\\wchain\\wchain.out";
+    private static final String FILE_NAME_IN = "wchain.in";
+    private static final String FILE_NAME_OUT = "wchain.out";
 
     private static int wordCount;
     private static Word[] words;
@@ -32,27 +32,20 @@ public class Wchain {
 
             for (Word w : words) {
                 String label = w.label;
-                System.out.println(w.label);
                 for (int i = 0; i < label.length(); i++) {
                     String target = removeChar(label, i);
                     if (wordMap.containsKey(target)) {
-
-                        System.out.println(target);
                         Word childWord = wordMap.get(target);
                         w.derivedWords.add(childWord);
                     }
                 }
             }
-
-            System.out.println(Arrays.toString(words));
-
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
     public static int DFS(Word word) {
-
         boolean[] visited = new boolean[wordCount];
         Stack<Word> stack = new Stack<>();
         stack.push(word);
@@ -67,7 +60,6 @@ public class Wchain {
                 count++;
             }
             if (!visited[w.id]) {
-                System.out.println(w);
                 visited[w.id] = true;
                 for (int i = w.derivedWords.size() - 1; i >= 0; i--) {
                     stack.push(w.derivedWords.get(i));
@@ -80,6 +72,14 @@ public class Wchain {
     private static int getMaxChainLength(int[] chainLength) {
         Arrays.sort(chainLength);
         return chainLength[chainLength.length - 1];
+    }
+
+    private static int[] getChainLength () {
+        int[] chainLength = new int[wordCount];
+        for (Word w : words) {
+            chainLength[w.id] = DFS(w);
+        }
+        return chainLength;
     }
 
     private static String removeChar(String word, int position) {
@@ -97,10 +97,7 @@ public class Wchain {
 
     public static void main(String[] args) {
         readFromFile();
-        int[] chainLength = new int[wordCount];
-        for (Word w : words) {
-            chainLength[w.id] = DFS(w);
-        }
+        int[] chainLength = getChainLength();
         int maxChainLength = getMaxChainLength(chainLength);
         writeToFile(maxChainLength);
     }
