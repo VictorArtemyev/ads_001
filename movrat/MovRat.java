@@ -1,57 +1,64 @@
 package ads_001.movrat;
 
-import java.util.Arrays;
-import java.util.Random;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
- * Created by Victor Artemjev on 15.05.2015.
+ * Created by Victor Artemyev on 15.05.2015.
+ * Updated on 17.07.2015
  */
 public class MovRat {
 
-    // Random numbers 0...100
-    public static final int RANDOM_NUMBER = 100;
+    private static final String FILE_NAME_IN = "movrat.in";
+    private static final String FILE_NAME_OUT = "movrat.out";
 
-    // Number of ratings
-    public static final int N = 4;
+    public static int[] ratings;
+    public static int lowIgnoreCount;
+    public static int highIgnoreCount;
 
-    // Number of low ratings
-    public static final int LOW_IGNORE_COUNT = 0;
-
-    // Number of high ratings
-    public static final int HIGH_IGNORE_COUNT = 0;
-
-    // User ratings
-    public static int[] ratings = getRandomRating(N);
-
-    public static void main(String[] args) {
-        System.out.println(Arrays.toString(ratings));
-        System.out.println(calculateArithmeticMeanRating(ratings, LOW_IGNORE_COUNT, HIGH_IGNORE_COUNT));
+    public static void main(String[] args) throws IOException {
+        readFromFile();
+        int rating = calculateRating();
+        writeToFile(rating);
     }
 
-    public static int calculateArithmeticMeanRating(int[] array, int lowIgnoreCount, int highIgnoreCount) {
-        MergeSort.sort(array);
+    private static void readFromFile() {
+        try (FileReader fileReader = new FileReader(FILE_NAME_IN);
+             BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+            bufferedReader.readLine();
+            String[] data = bufferedReader.readLine().split(" ");
+            ratings = new int[data.length];
+            for (int i = 0; i < data.length; i++) {
+                ratings[i] = Integer.parseInt(data[i]);
+            }
+            lowIgnoreCount = Integer.parseInt(bufferedReader.readLine());
+            highIgnoreCount = Integer.parseInt(bufferedReader.readLine());
+        } catch (IOException e) {
+            System.err.format("IOException: %s%n", e);
+        }
+    }
+
+    private static int calculateRating() {
+        MergeSort.sort(ratings);
         int leftPos = lowIgnoreCount;
-        int rightPos = array.length - highIgnoreCount;
+        int rightPos = ratings.length - highIgnoreCount;
         int sum = 0;
         int number = 0;
         for (int i = leftPos; i < rightPos; i++) {
-            sum += array[i];
+            sum += ratings[i];
             number++;
         }
-        return getArithmeticMean(sum, number);
-    }
-
-    public static int getArithmeticMean(int sum, int number) {
-        return sum / number;
-    }
-
-    public static int[] getRandomRating(int n) {
-        int[] result = new int[n];
-
-        Random random = new Random();
-        for (int i = 0; i < result.length; i++) {
-            result[i] = random.nextInt(RANDOM_NUMBER);
-        }
+        int result = sum / number;
         return result;
+    }
+
+    private static void writeToFile(int value) {
+        try (FileWriter writer = new FileWriter(FILE_NAME_OUT)) {
+            writer.write(String.valueOf(value));
+        } catch (IOException e) {
+            System.err.format("IOException: %s%n", e);
+        }
     }
 }
