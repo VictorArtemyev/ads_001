@@ -1,92 +1,98 @@
 package ads_001.lngpok;
 
 import java.io.*;
+import java.util.*;
 
 /**
  * Created by Victor Artemjev on 30.05.2015.
+ * Updated on 18.07.2015
  */
 public class Lngpok {
 
     private static final String FILE_NAME_IN = "lngpok.in";
     private static final String FILE_NAME_OUT = "lngpok.out";
 
-    private static int[] array;
+    private static final int JOKER = 0;
+
+    private static int[] cards;
+    private static int jokerCount;
+    private static List<Integer> uniqueCards;
 
     public static void main(String[] args) {
-        array = readFromFile(FILE_NAME_IN);
-        QuickSort.sort(array);
-        int numberOfZeros = getNumberOfZeros(array);
-        int longestSequenceLength = getLongestSequenceLength(array, numberOfZeros);
-        System.out.println(longestSequenceLength);
+        cards = readFromFile(FILE_NAME_IN);
+        QuickSort.sort(cards);
+        jokerCount = getNumberOfJokers(cards);
+        uniqueCards = getUniqueCards(cards);
+        int longestSequenceLength = getLongestSequenceLength();
         writeToFile(FILE_NAME_OUT, longestSequenceLength);
     }
 
-    private static int getLongestSequenceLength(int[] array, int numberOfZeros) {
-        if (array.length <= 1) {
-            return array.length;
-        }
-
-        int maxLength = 1;
-        int zeroCount = numberOfZeros;
-        int startPosition = zeroCount + 1;
-
-        for (int i = startPosition; i < array.length; i++) {
-            int countLength = 1;
-            int currentItem = array[i - 1];
-            int nextItem = currentItem + 1;
-
-            while (i < array.length) {
-
-                while (i < array.length && currentItem == array[i]) {
-                    i++;
-                }
-
-                if (i < array.length && nextItem == array[i]) {
-                    countLength++;
-                    i++;
-                }
-
-                while (i < array.length && nextItem == array[i]) {
-                    i++;
-                }
-
-                nextItem++;
-
-                if ((i < array.length &&
-                        nextItem + zeroCount < array[i])
-                        || i >= array.length) {
-
-                    while (zeroCount != 0) {
-                        zeroCount--;
-                        countLength++;
-                    }
-                    break;
-
-                } else if (nextItem < array[i]) {
-                    while (nextItem != array[i]) {
-                        zeroCount--;
-                        countLength++;
-                        nextItem++;
-                    }
-                }
-            }
-
-            zeroCount = numberOfZeros;
-
-            if (maxLength < countLength) {
-                maxLength = countLength;
+    private static List<Integer> getUniqueCards(int[] cards) {
+        List<Integer> result = new ArrayList<>();
+        int currentCard = JOKER;
+        for (int i = 0; i < cards.length; i++) {
+            if (cards[i] != currentCard) {
+                result.add(cards[i]);
+                currentCard = cards[i];
             }
         }
-        return maxLength;
+        return result;
     }
 
-    private static int getNumberOfZeros(int[] data) {
-        int zeroCount = 0;
-        // Assuming the array is already sorted
-        while (data[zeroCount] == 0) {
-            zeroCount++;
+    private static int getLongestSequenceLength() {
+        int result = 0;
+        for (int i = 0; i < uniqueCards.size(); i++) {
+            for (int j = uniqueCards.size() - 1; j >= 0; j--) {
+                int length = j - i + 1;
+                if (getJokerCost(j, i) <= jokerCount && result < length) {
+                    result = length;
+                }
+            }
         }
-        return zeroCount;
+        return result + jokerCount;
+    }
+
+    private static int getJokerCost(int right, int left) {
+        return uniqueCards.get(right) - uniqueCards.get(left) + 1 - (right - left + 1);
+    }
+
+//    private static int getLongestSequenceLength() {
+//        int result = 0;
+//        int lastCard = uniqueCards.size() - 1;
+//
+//        for (int i = 0; i < uniqueCards.size(); i++) {
+//            int leftCard = i;
+//            int rightCard = lastCard;
+//
+//            while (leftCard < rightCard) {
+//                int middleCard = (leftCard + rightCard + 1) / 2;
+//                int jokerCost = getJokerCost(middleCard, i);
+//                if (jokerCount < jokerCost) {
+//                    rightCard = middleCard - 1;
+//                } else {
+//                    leftCard = middleCard;
+//                }
+//            }
+//            int length = rightCard - i + 1;
+//            if (length > result) {
+//                result = length;
+//            }
+//        }
+//        return result + jokerCount;
+//    }
+
+    private static int getNumberOfJokers(int[] cards) {
+        int jokerCount = 0;
+        for (int card : cards) {
+            if (card == JOKER) {
+                jokerCount++;
+            }
+        }
+        if(cards.length != jokerCount) {
+            return jokerCount;
+        } else {
+            return cards.length;
+        }
     }
 
     private static int[] readFromFile(String fileName) {
@@ -103,7 +109,7 @@ public class Lngpok {
                 }
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.err.format("IOException: %s%n", ex);
         }
         return result;
     }
@@ -113,7 +119,7 @@ public class Lngpok {
              BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
             bufferedWriter.write(String.valueOf(value));
         } catch (IOException ex) {
-            ex.printStackTrace();
+            System.err.format("IOException: %s%n", ex);
         }
     }
 }
