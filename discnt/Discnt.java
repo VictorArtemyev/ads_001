@@ -8,8 +8,8 @@ import java.util.Locale;
  */
 public class Discnt {
 
-    private static final String FILE_NAME_IN = "E:\\Java\\Algorithms\\src\\ads_001\\discnt\\discnt.in";
-    private static final String FILE_NAME_OUT = "E:\\Java\\Algorithms\\src\\ads_001\\discnt\\discnt.out";
+    private static final String FILE_NAME_IN = "discnt.in";
+    private static final String FILE_NAME_OUT = "discnt.out";
 
     private static final int PURCHASE_DISCOUNT_NUMBER = 3;
 
