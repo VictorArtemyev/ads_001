@@ -3,15 +3,17 @@ package ads_001.discnt;
 import java.util.Random;
 
 /**
- * Created by Victor Artemjev on 19.05.2015.
+ * Created by Victor Artemyev on 19.05.2015.
  */
 public class QuickSort {
 
     public static void sort(int[] data) {
-        quickSortRecursive(data, 0, data.length - 1);
+
+            sortRecursive(data, 0, data.length - 1);
+
     }
 
-    private static void quickSortRecursive(int[] data, int leftIndex, int rightIndex) {
+    private static void sortRecursive(int[] data, int leftIndex, int rightIndex) {
         int pivot = getPivot(data, leftIndex);
         int leftWritePos = leftIndex;
         int rightWritePos = rightIndex;
@@ -33,10 +35,10 @@ public class QuickSort {
         }
 
         if (leftIndex < leftWritePos - 1) {
-            quickSortRecursive(data, leftIndex, leftWritePos - 1);
+            sortRecursive(data, leftIndex, leftWritePos - 1);
         }
         if (leftWritePos < rightIndex) {
-            quickSortRecursive(data, leftWritePos, rightIndex);
+            sortRecursive(data, leftWritePos, rightIndex);
         }
     }
 
@@ -61,6 +63,6 @@ public class QuickSort {
     }
 
     private static boolean compare(int a, int b) {
-        return a < b;
+        return a > b;
     }
 }

@@ -1,8 +1,6 @@
 package ads_001.discnt;
 
 import java.io.*;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Locale;
 
 /**
@@ -10,8 +8,8 @@ import java.util.Locale;
  */
 public class Discnt {
 
-    private static final String FILE_NAME_IN = "discnt.in";
-    private static final String FILE_NAME_OUT = "discnt.out";
+    private static final String FILE_NAME_IN = "E:\\Java\\Algorithms\\src\\ads_001\\discnt\\discnt.in";
+    private static final String FILE_NAME_OUT = "E:\\Java\\Algorithms\\src\\ads_001\\discnt\\discnt.out";
 
     private static final int PURCHASE_DISCOUNT_NUMBER = 3;
 
@@ -20,38 +18,35 @@ public class Discnt {
 
     public static void main(String[] args) {
         readFromFile(FILE_NAME_IN);
-        double minSum = getMinSum(prices);
+        double minSum = getMinSum();
         writeToFile(FILE_NAME_OUT, minSum);
     }
 
-    private static double getMinSum(int[] prices) {
-        double minSum = 0.0;
-        QuickSort.sort(prices);
-        int lastMaxPriceIndex = prices.length - 1;
-        int discountCount = prices.length / PURCHASE_DISCOUNT_NUMBER;
-        int barrier = prices.length - discountCount;
-        if (prices.length % PURCHASE_DISCOUNT_NUMBER == 0) {
-            barrier++;
-        }
-        int priceCount = 1;
-
-        for (int i = 0; i < barrier; i++) {
-            if (discountCount != 0 &&
-                    priceCount % PURCHASE_DISCOUNT_NUMBER == 0) {
-
-                minSum += getPriceWithDiscount(prices[lastMaxPriceIndex--]);
-                discountCount--;
-
-                if (i == barrier - 1 &&
-                        barrier % PURCHASE_DISCOUNT_NUMBER == 0) {
-                    break;
-                }
+    private static void readFromFile(String fileName) {
+        try (FileReader fileReader = new FileReader(fileName);
+             BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+            String[] data = bufferedReader.readLine().split(" ");
+            prices = new int[data.length];
+            for (int i = 0; i < data.length; i++) {
+                prices[i] = Integer.parseInt(data[i]);
             }
-            minSum += prices[i];
-            priceCount++;
+            discount = getDiscount(Integer.parseInt(bufferedReader.readLine()));
+        } catch (Exception e) {
+            System.err.format("IOException: %s%n", e);
         }
+    }
 
-        return minSum;
+    private static double getMinSum() {
+        QuickSort.sort(prices);
+        int discountCount = prices.length / PURCHASE_DISCOUNT_NUMBER;
+        double result = 0;
+        for (int i = 0; i < discountCount; i++) {
+            result += getPriceWithDiscount(prices[i]);
+        }
+        for (int i = discountCount; i < prices.length; i++) {
+            result += prices[i];
+        }
+        return result;
     }
 
     private static double getPriceWithDiscount(int price) {
@@ -62,43 +57,18 @@ public class Discnt {
         return (double) (100 - value) / 100;
     }
 
-    private static void readFromFile(String fileName) {
-        try (FileReader fileReader = new FileReader(fileName);
-             BufferedReader bufferedReader = new BufferedReader(fileReader)) {
-            String line = null;
-            while ((line = bufferedReader.readLine()) != null) {
-                String[] data = line.split(" ");
-                if (data.length > 1) {
-                    prices = new int[data.length];
-                    for (int i = 0; i < prices.length; i++) {
-                        prices[i] = Integer.parseInt(data[i]);
-                    }
-                } else {
-                    discount = getDiscount(Integer.parseInt(data[0]));
-                }
-            }
-        }catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
     private static void writeToFile(String fileName, double value) {
         String result = getRoundedValue(value);
-        try(FileWriter fileWriter = new FileWriter(fileName);
-            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+        try (FileWriter fileWriter = new FileWriter(fileName);
+             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
             bufferedWriter.write(result);
-        }catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (IOException e) {
+            System.err.format("IOException: %s%n", e);
         }
     }
 
     private static String getRoundedValue(double value) {
-        Locale locale  = new Locale("en", "UK");
-        String pattern = "##.00";
-        DecimalFormat decimalFormat = (DecimalFormat)
-                NumberFormat.getNumberInstance(locale);
-        decimalFormat.applyPattern(pattern);
-        return decimalFormat.format(value);
-
+        Locale locale = new Locale("en", "UK");
+        return String.format(locale, "%.2f", value);
     }
 }
