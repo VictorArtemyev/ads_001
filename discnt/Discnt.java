@@ -4,7 +4,8 @@ import java.io.*;
 import java.util.Locale;
 
 /**
- * Created by Victor Artemjev on 01.06.2015.
+ * Created by Victor Artemyev on 01.06.2015.
+ * Updated on 18.07.2015
  */
 public class Discnt {
 
