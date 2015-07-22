@@ -10,8 +10,8 @@ import java.util.List;
  */
 public class Gamsvr {
 
-    private static final String FILE_NAME_IN = "E:\\Java\\Algorithms\\src\\ads_001\\gamsvr\\gamsrv.in";
-    private static final String FILE_NAME_OUT = "E:\\Java\\Algorithms\\src\\ads_001\\gamsvr\\gamsrv.out";
+    private static final String FILE_NAME_IN = "gamsrv.in";
+    private static final String FILE_NAME_OUT = "gamsrv.out";
 
     private static int nodeCount;
     private static int clientCount;
@@ -102,7 +102,6 @@ public class Gamsvr {
                 long alternativeLatency = latencies[shortestLatencyNode.id] + connection.latency;
                 if (alternativeLatency < latencies[connection.endNode.id]) {
                     latencies[connection.endNode.id] = alternativeLatency;
-                    System.out.println(latencies[connection.endNode.id]);
                 }
             }
         }
