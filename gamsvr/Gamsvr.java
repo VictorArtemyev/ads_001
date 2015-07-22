@@ -10,11 +10,10 @@ import java.util.List;
  */
 public class Gamsvr {
 
-    private static final String FILE_NAME_IN = "gamsvr.in";
-    private static final String FILE_NAME_OUT = "gamsvr.out";
+    private static final String FILE_NAME_IN = "E:\\Java\\Algorithms\\src\\ads_001\\gamsvr\\gamsrv.in";
+    private static final String FILE_NAME_OUT = "E:\\Java\\Algorithms\\src\\ads_001\\gamsvr\\gamsrv.out";
 
     private static int nodeCount;
-    private static int connectionCount;
     private static int clientCount;
 
     private static Network network;
@@ -27,7 +26,6 @@ public class Gamsvr {
             // read first line (number of nodes and connections)
             data = bufferedReader.readLine().split(" ");
             nodeCount = Integer.parseInt(data[0]);
-            connectionCount = Integer.parseInt(data[0]);
 
             //read second line (numbers of nodes which are clients)
             Node[] nodes = new Node[nodeCount];
@@ -51,7 +49,7 @@ public class Gamsvr {
                 data = line.split(" ");
                 int startNodeId = Integer.parseInt(data[0]) - 1;
                 int endNodeId = Integer.parseInt(data[1]) - 1;
-                int latency = Integer.parseInt(data[2]);
+                long latency = Long.parseLong(data[2]);
 
                 Connection connection = new Connection(nodes[startNodeId], nodes[endNodeId], latency);
                 nodes[startNodeId].outboundConnections.add(connection);
@@ -64,23 +62,23 @@ public class Gamsvr {
             }
             network = new Network(nodes, connections);
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (IOException ex) {
+            System.err.format("IOException: %s%n", ex);
         }
     }
 
-    private static void writeToFile(int value) {
+    private static void writeToFile(long value) {
         try (FileWriter fileWriter = new FileWriter(FILE_NAME_OUT);
              BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
             bufferedWriter.write(String.valueOf(value));
         } catch (IOException ex) {
-            ex.printStackTrace();
+            System.err.format("IOException: %s%n", ex);
         }
     }
 
-    private static int[] dijkstra(Network network, Node startNode) {
-        int[] latencies = new int[network.nodes.length];
-        int maxLatency = Integer.MAX_VALUE;
+    private static long[] dijkstra(Network network, Node startNode) {
+        long[] latencies = new long[network.nodes.length];
+        long maxLatency = Long.MAX_VALUE;
         for (int i = 0; i < latencies.length; i++) {
             latencies[i] = maxLatency;
         }
@@ -101,16 +99,17 @@ public class Gamsvr {
             visitList.remove(shortestLatencyIndex);
 
             for(Connection connection : shortestLatencyNode.outboundConnections) {
-                int alternativeLatency = latencies[shortestLatencyNode.id] + connection.latency;
+                long alternativeLatency = latencies[shortestLatencyNode.id] + connection.latency;
                 if (alternativeLatency < latencies[connection.endNode.id]) {
                     latencies[connection.endNode.id] = alternativeLatency;
+                    System.out.println(latencies[connection.endNode.id]);
                 }
             }
         }
         return latencies;
     }
 
-    private static int getMaxLatencyToClient(int[] latencies) {
+    private static long getMaxLatencyToClient(long[] latencies) {
         for (int i = 0; i < latencies.length; i++) {
             Node node = network.nodes[i];
             if (!node.isClient) {
@@ -121,12 +120,12 @@ public class Gamsvr {
         return latencies[latencies.length - 1];
     }
 
-    private static int getMostMinimumLatency() {
-        int[] latencyToClients = new int[network.nodes.length - clientCount];
+    private static long getMostMinimumLatency() {
+        long[] latencyToClients = new long[network.nodes.length - clientCount];
         int latencyCount = 0;
         for (Node node : network.nodes) {
             if(!node.isClient) {
-                int[] latencies = dijkstra(network, node);
+                long[] latencies = dijkstra(network, node);
                 latencyToClients[latencyCount++] = getMaxLatencyToClient(latencies);
             }
         }
@@ -148,12 +147,17 @@ public class Gamsvr {
     private static class Connection {
         public final Node startNode;
         public final Node endNode;
-        public final int latency;
+        public final long latency;
 
-        public Connection(Node startNode, Node endNode, int latency) {
+        public Connection(Node startNode, Node endNode, long latency) {
             this.startNode = startNode;
             this.endNode = endNode;
             this.latency = latency;
+        }
+
+        @Override
+        public String toString() {
+            return startNode.id + "======>" + latency + "=======>" + endNode.id;
         }
     }
 
@@ -169,7 +173,7 @@ public class Gamsvr {
 
     public static void main(String[] args) {
         readFromFile();
-        int mostMinimumLatency = getMostMinimumLatency();
+        long mostMinimumLatency = getMostMinimumLatency();
         writeToFile(mostMinimumLatency);
     }
 }
