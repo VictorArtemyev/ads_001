@@ -10,8 +10,8 @@ import java.util.List;
  */
 public class Gamsvr {
 
-    private static final String FILE_NAME_IN = "gamsrv.in";
-    private static final String FILE_NAME_OUT = "gamsrv.out";
+    private static final String FILE_NAME_IN = "gamsvr.in";
+    private static final String FILE_NAME_OUT = "gamsvr.out";
 
     private static int nodeCount;
     private static int clientCount;
