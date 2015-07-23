@@ -1,9 +1,7 @@
 package ads_001.gamsvr;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Victor Artemjev on 20.06.2015.
@@ -37,7 +35,7 @@ public class Gamsvr {
             }
 
             for (int i = 0; i < nodes.length; i++) {
-                if(nodes[i] == null) {
+                if (nodes[i] == null) {
                     nodes[i] = new Node(i, false);
                 }
             }
@@ -77,35 +75,65 @@ public class Gamsvr {
     }
 
     private static long[] dijkstra(Network network, Node startNode) {
-        long[] latencies = new long[network.nodes.length];
+        final long[] latencies = new long[network.nodes.length];
         long maxLatency = Long.MAX_VALUE;
         for (int i = 0; i < latencies.length; i++) {
             latencies[i] = maxLatency;
         }
         latencies[startNode.id] = 0;
-        ArrayList<Node> visitList = new ArrayList<>(Arrays.asList(network.nodes));
 
-        while (!visitList.isEmpty()) {
-            int shortestLatencyIndex = 0;
-            Node shortestLatencyNode = visitList.get(shortestLatencyIndex);
+        PriorityQueue<Node> priorityQueue = new PriorityQueue<>(
+                new Comparator<Node>() {
+            @Override
+            public int compare(Node node1, Node node2) {
+                return Long.compare(latencies[node1.id], latencies[node2.id]);
+            }
+        });
+        priorityQueue.add(startNode);
 
-            for (int i = 0; i < visitList.size(); i++) {
-                if (latencies[visitList.get(i).id] < latencies[shortestLatencyIndex]) {
-                    shortestLatencyNode = visitList.get(i);
-                    shortestLatencyIndex = i;
+        while (!priorityQueue.isEmpty()) {
+
+            Node shortestLatencyNode;
+            while (true) {
+                shortestLatencyNode = priorityQueue.poll();
+                long latency = latencies[shortestLatencyNode.id];
+                if (latency != Long.MAX_VALUE) {
+                    break;
                 }
             }
 
-            visitList.remove(shortestLatencyIndex);
-
-            for(Connection connection : shortestLatencyNode.outboundConnections) {
+            for (Connection connection : shortestLatencyNode.outboundConnections) {
                 long alternativeLatency = latencies[shortestLatencyNode.id] + connection.latency;
                 if (alternativeLatency < latencies[connection.endNode.id]) {
                     latencies[connection.endNode.id] = alternativeLatency;
+                    priorityQueue.add(connection.endNode);
                 }
             }
         }
-        return latencies;
+
+//        ArrayList<Node> visitList = new ArrayList<>(Arrays.asList(network.nodes));
+//
+//        while (!visitList.isEmpty()) {
+//            int shortestLatencyIndex = 0;
+//            Node shortestLatencyNode = visitList.get(shortestLatencyIndex);
+//
+//            for (int i = 0; i < visitList.size(); i++) {
+//                if (latencies[visitList.get(i).id] < latencies[shortestLatencyIndex]) {
+//                    shortestLatencyNode = visitList.get(i);
+//                    shortestLatencyIndex = i;
+//                }
+//            }
+//
+//            visitList.remove(shortestLatencyIndex);
+//
+//            for(Connection connection : shortestLatencyNode.outboundConnections) {
+//                long alternativeLatency = latencies[shortestLatencyNode.id] + connection.latency;
+//                if (alternativeLatency < latencies[connection.endNode.id]) {
+//                    latencies[connection.endNode.id] = alternativeLatency;
+//                }
+//            }
+//        }
+            return latencies;
     }
 
     private static long getMaxLatencyToClient(long[] latencies) {
@@ -123,7 +151,7 @@ public class Gamsvr {
         long[] latencyToClients = new long[network.nodes.length - clientCount];
         int latencyCount = 0;
         for (Node node : network.nodes) {
-            if(!node.isClient) {
+            if (!node.isClient) {
                 long[] latencies = dijkstra(network, node);
                 latencyToClients[latencyCount++] = getMaxLatencyToClient(latencies);
             }
