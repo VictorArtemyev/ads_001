@@ -1,47 +1,51 @@
 package ads_001.wchain;
 
 import java.io.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Stack;
 
 /**
- * Created by Victor Artemjev on 23.06.2015.
+ * Created by Victor Artemyev on 23.06.2015.
  */
 public class Wchain {
-    private static final String FILE_NAME_IN = "wchain.in";
-    private static final String FILE_NAME_OUT = "wchain.out";
+    private static final String FILE_NAME_IN = "E:\\Java\\Algorithms\\src\\ads_001\\wchain\\15.in";
+    private static final String FILE_NAME_OUT = "E:\\Java\\Algorithms\\src\\ads_001\\wchain\\wchain.out";
 
     private static int wordCount;
     private static Word[] words;
 
     public static void readFromFile() {
-        String line = null;
         try (FileReader fileReader = new FileReader(FILE_NAME_IN);
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
 
-            line = bufferedReader.readLine();
-            wordCount = Integer.parseInt(line);
+            String label = bufferedReader.readLine();
+            wordCount = Integer.parseInt(label);
 
             words = new Word[wordCount];
             Map<String, Word> wordMap = new HashMap<>();
-            for (int i = 0; i < words.length; i++) {
-                line = bufferedReader.readLine();
-                Word word = new Word(i, line);
+            for (int i = 0; i < wordCount; i++) {
+                label = bufferedReader.readLine();
+                Word word = new Word(i, label);
                 words[i] = word;
-                wordMap.put(line, word);
+                wordMap.put(label, word);
             }
 
             for (Word w : words) {
-                String label = w.label;
+                label = w.label;
                 for (int i = 0; i < label.length(); i++) {
                     String target = removeChar(label, i);
                     if (wordMap.containsKey(target)) {
                         Word childWord = wordMap.get(target);
-                        w.derivedWords.add(childWord);
+//                        w.derivedWords.add(childWord);
+                        w.derivedWord = childWord;
+                        break;
                     }
                 }
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.err.format("IOException: %s%n", ex);
         }
     }
 
@@ -50,20 +54,23 @@ public class Wchain {
         Stack<Word> stack = new Stack<>();
         stack.push(word);
 
-        int count = 1;
-        int wordLength = word.label.length();
+        int count = 0;
+//        int wordLength = word.label.length();
 
         while (!stack.isEmpty()) {
             Word w = stack.pop();
-            if (wordLength - 1 == w.label.length()) {
-                wordLength = w.label.length();
-                count++;
+            if (w == null) {
+                return count;
             }
+//            if (wordLength - 1 == w.label.length()) {
+//                wordLength = w.label.length();
+                count++;
+//            }
             if (!visited[w.id]) {
                 visited[w.id] = true;
-                for (int i = w.derivedWords.size() - 1; i >= 0; i--) {
-                    stack.push(w.derivedWords.get(i));
-                }
+//                System.out.println(w.derivedWords);
+//                stack.addAll(w.derivedWords);
+                stack.push(w.derivedWord);
             }
         }
         return count;
@@ -74,7 +81,7 @@ public class Wchain {
         return chainLength[chainLength.length - 1];
     }
 
-    private static int[] getChainLength () {
+    private static int[] getChainLength() {
         int[] chainLength = new int[wordCount];
         for (Word w : words) {
             chainLength[w.id] = DFS(w);
@@ -83,7 +90,9 @@ public class Wchain {
     }
 
     private static String removeChar(String word, int position) {
-        return word.substring(0, position) + word.substring(position + 1, word.length());
+        StringBuilder stringBuilder = new StringBuilder(word);
+        stringBuilder.delete(position, position + 1);
+        return stringBuilder.toString();
     }
 
     private static void writeToFile(int value) {
@@ -91,21 +100,31 @@ public class Wchain {
              BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
             bufferedWriter.write(String.valueOf(value));
         } catch (IOException ex) {
-            ex.printStackTrace();
+            System.err.format("IOException: %s%n", ex);
         }
     }
 
     public static void main(String[] args) {
+//        long time = System.currentTimeMillis();
+
         readFromFile();
         int[] chainLength = getChainLength();
         int maxChainLength = getMaxChainLength(chainLength);
+
+//        time = System.currentTimeMillis() - time;
+//        Date date = new Date(time);
+//        DateFormat formatter = new SimpleDateFormat("mm:ss:SSS");
+//        String dateFormatted = formatter.format(date);
+//        System.out.println("getMaxChainLength: " + dateFormatted);
+
         writeToFile(maxChainLength);
     }
 
     private static class Word {
         public int id;
         public String label;
-        public List<Word> derivedWords = new ArrayList<>();
+//        public List<Word> derivedWords = new ArrayList<>();
+        public Word derivedWord;
 
         public Word(int id, String label) {
             this.id = id;
