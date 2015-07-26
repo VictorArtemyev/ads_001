@@ -10,8 +10,8 @@ import java.util.Stack;
  * Created by Victor Artemyev on 23.06.2015.
  */
 public class Wchain {
-    private static final String FILE_NAME_IN = "E:\\Java\\Algorithms\\src\\ads_001\\wchain\\15.in";
-    private static final String FILE_NAME_OUT = "E:\\Java\\Algorithms\\src\\ads_001\\wchain\\wchain.out";
+    private static final String FILE_NAME_IN = "wchain.in";
+    private static final String FILE_NAME_OUT = "wchain.out";
 
     private static int wordCount;
     private static Word[] words;
