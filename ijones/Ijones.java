@@ -4,15 +4,14 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * Created by Victor Artemyev on 28.07.2015.
  */
 public class Ijones {
 
-    private static final String FILE_NAME_IN = "E:\\Java\\Algorithms\\src\\ads_001\\ijones\\ijones.in";
-    private static final String FILE_NAME_OUT = "E:\\Java\\Algorithms\\src\\ads_001\\ijones\\ijones.out";
+    private static final String FILE_NAME_IN = "ijones.in";
+    private static final String FILE_NAME_OUT = "ijones.out";
 
     private static int corridorWidth;
     private static int corridorHeight;
@@ -21,9 +20,9 @@ public class Ijones {
 
     public static void main(String[] args) {
         readFromFile();
-        System.out.println(Arrays.deepToString(slabs));
+//        System.out.println(Arrays.deepToString(slabs));
         long result = getSuccessfulWays();
-        System.out.println(result);
+//        System.out.println(result);
         writeToFile(result);
     }
 
