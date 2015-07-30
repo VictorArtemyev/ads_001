@@ -11,8 +11,8 @@ import java.util.Arrays;
  */
 public class Ijones {
 
-    private static final String FILE_NAME_IN = "ijones.in";
-    private static final String FILE_NAME_OUT = "ijones.out";
+    private static final String FILE_NAME_IN = "E:\\Java\\Algorithms\\src\\ads_001\\ijones\\ijones.in";
+    private static final String FILE_NAME_OUT = "E:\\Java\\Algorithms\\src\\ads_001\\ijones\\ijones.out";
 
     private static int corridorWidth;
     private static int corridorHeight;

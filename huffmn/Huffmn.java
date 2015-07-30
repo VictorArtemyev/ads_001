@@ -48,15 +48,16 @@ public class Huffmn {
                 }
                 break;
             case DECOMPRESS:
+                System.err.format("Sorry, decompress doesn't work");
 
-                try {
-                    byte[] data = Files.readAllBytes(inputPath);
-                    Huffmn huffmn = new Huffmn();
-                    byte[] compressedData = huffmn.decompress(data);
-                    Files.write(outputPath, compressedData);
-                } catch (IOException e) {
-                    System.err.format("IOException: %s%n", e);
-                }
+//                try {
+//                    byte[] data = Files.readAllBytes(inputPath);
+//                    Huffmn huffmn = new Huffmn();
+//                    byte[] compressedData = huffmn.decompress(data);
+//                    Files.write(outputPath, compressedData);
+//                } catch (IOException e) {
+//                    System.err.format("IOException: %s%n", e);
+//                }
                 break;
         }
     }
@@ -129,6 +130,7 @@ public class Huffmn {
         return result;
     }
 
+    // TODO need to improve decompress
     public byte[] decompress(byte[] compressedData) {
         StringBuffer buffer = new StringBuffer();
 
