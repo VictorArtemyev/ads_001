@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Victor Artemyev on 28.07.2015.
@@ -16,13 +19,10 @@ public class Ijones {
     private static int corridorWidth;
     private static int corridorHeight;
     private static char[][] slabs;
-    private static long[][] solutions;
 
     public static void main(String[] args) {
         readFromFile();
-//        System.out.println(Arrays.deepToString(slabs));
-        long result = getSuccessfulWays();
-//        System.out.println(result);
+        BigInteger result = getSuccessfulPath();
         writeToFile(result);
     }
 
@@ -35,26 +35,18 @@ public class Ijones {
             corridorHeight = Integer.parseInt(corridorSize[1]);
 
             slabs = new char[corridorHeight][corridorWidth];
-            solutions = new long[corridorHeight][corridorWidth];
 
             for (int row = 0; row < corridorHeight; row++) {
                 char[] symbols = bufferedReader.readLine().toCharArray();
                 System.arraycopy(symbols, 0, slabs[row], 0, corridorWidth);
             }
 
-//            for (int i = 0; i < slabs.length; i++) {
-//                for (int j = 0; j < slabs[i].length; j++) {
-//                    System.out.print(slabs[i][j]);
-//                }
-//                System.out.println();
-//            }
-
         } catch (IOException e) {
             System.err.format("IOException: %s%n", e);
         }
     }
 
-    private static void writeToFile(long value) {
+    private static void writeToFile(BigInteger value) {
         try (FileWriter writer = new FileWriter(FILE_NAME_OUT)) {
             writer.write(String.valueOf(value));
         } catch (IOException e) {
@@ -62,53 +54,53 @@ public class Ijones {
         }
     }
 
-    private static long getSuccessfulWays() {
+    private static BigInteger getSuccessfulPath() {
 
-//        long[] waysBySymbol = new long[corridorHeight];
-//        long[] currentSolutions = new long[corridorHeight];
+        BigInteger[][] solutions = new BigInteger[corridorHeight][corridorWidth];
+        Map<Character, BigInteger> distinctPathToLetter = new HashMap<>();
 
-
-        for (int row = 0; row < corridorHeight; row++) {
-            for (int column = 0; column < corridorWidth; column++) {
-                solutions[row][column] = 1;
-            }
+        for (char letter = 'a'; letter <= 'z'; letter++) {
+            distinctPathToLetter.put(letter, BigInteger.ZERO);
         }
 
-        for (int row = 0; row < corridorHeight; row++) {
-            for (int column = 0; column < corridorWidth; column++) {
-                countJumps(solutions, row, column);
+        for (int y = 0; y < corridorHeight; y++) {
+            solutions[y][0] = BigInteger.ONE;
+            for (int x = 1; x < corridorWidth; x++) {
+                solutions[y][x] = BigInteger.ZERO;
+            }
+            BigInteger countPath = distinctPathToLetter.get(slabs[y][0]).add(BigInteger.ONE);
+            distinctPathToLetter.put(slabs[y][0], countPath);
+        }
+
+        for (int x = 1; x < corridorWidth; x++) {
+            Map<Character, BigInteger> lettersEncounteredInThisColumn = new HashMap<>();
+
+            for (char letter = 'a'; letter <= 'z'; letter++) {
+                lettersEncounteredInThisColumn.put(letter, BigInteger.ZERO);
+            }
+
+            for (int y = 0; y < corridorHeight; y++) {
+                BigInteger case1 = distinctPathToLetter.get(slabs[y][x]);
+                BigInteger case2 = slabs[y][x - 1] != slabs[y][x] ? solutions[y][x - 1] : BigInteger.ZERO;
+                solutions[y][x] = case1.add(case2);
+
+                BigInteger updatedPath = lettersEncounteredInThisColumn.get(slabs[y][x]).add(solutions[y][x]);
+                lettersEncounteredInThisColumn.put(slabs[y][x], updatedPath);
+            }
+
+            for (char letter = 'a'; letter <= 'z'; letter++) {
+                BigInteger updatedDistinctPath =
+                        distinctPathToLetter.get(letter).add(
+                                lettersEncounteredInThisColumn.get(letter));
+                distinctPathToLetter.put(letter, updatedDistinctPath);
             }
         }
 
         if(corridorHeight == 1) {
-            return solutions[0][solutions[0].length - 1];
+            return solutions[0][corridorWidth - 1];
         } else {
-            return solutions[0][solutions[0].length - 1] +
-                    solutions[solutions.length - 1][solutions[0].length - 1];
+            return solutions[0][corridorWidth - 1]
+                    .add(solutions[corridorHeight - 1][corridorWidth - 1]);
         }
     }
-
-    private static void countJumps(long[][] solutions, int row, int column) {
-
-        char symbol = slabs[row][column];
-        long previousJumps = solutions[row][column];
-
-        for (int j = column + 1; j <  corridorWidth; j++) {
-            for (int i = 0; i < corridorHeight; i++) {
-
-                if (i == row && j == column + 1) {
-                    continue;
-//                    solutions[i][j] += 1;
-                }
-
-                else if (symbol == slabs[i][j]) {
-                    solutions[i][j] += previousJumps;
-                    for (int col = j + 1; col < corridorWidth; col++) {
-                        solutions[i][col]++;
-                    }
-                }
-            }
-        }
-    }
-
 }
